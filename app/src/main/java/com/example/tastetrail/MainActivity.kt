@@ -31,6 +31,10 @@ import com.example.tastetrail.ui.screens.ProfileScreen
 import com.example.tastetrail.ui.screens.RegisterScreen
 import com.example.tastetrail.ui.screens.RequestPasswordResetScreen
 import com.example.tastetrail.ui.theme.TasteTrailTheme
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 
 sealed class Screen(val route: String, val label: String, val icon: @Composable () -> Unit) {
     object Home : Screen("home", "Routes", { Icon(Icons.Default.Home, contentDescription = "Routes") })
@@ -87,19 +91,25 @@ fun MyApp() {
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            enterTransition = { fadeIn() + slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) },
+            exitTransition = { fadeOut() + slideOutHorizontally(targetOffsetX = { fullWidth -> -fullWidth }) },
+            popEnterTransition = { fadeIn() + slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth }) },
+            popExitTransition = { fadeOut() + slideOutHorizontally(targetOffsetX = { fullWidth -> fullWidth }) }
         ) {
             composable("login") {
                 LoginScreen(
-                    onLoginSuccess = { navController.navigate(Screen.Home.route) },
+                    onLoginSuccess = { navController.navigate(Screen.Home.route) {
+                        popUpTo("login") { inclusive = true }
+                    }},
                     onNavigateToRegister = { navController.navigate("register") },
                     onNavigateToPasswordReset = { navController.navigate("requestPasswordReset") }
                 )
             }
             composable("register") {
                 RegisterScreen(
-                    onRegisterSuccess = { navController.navigate("login") },
-                    onNavigateToLogin = { navController.navigate("login") }
+                    onRegisterSuccess = { navController.popBackStack() },
+                    onNavigateToLogin = { navController.popBackStack() }
                 )
             }
             composable("requestPasswordReset") {
