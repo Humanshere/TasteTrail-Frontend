@@ -9,6 +9,7 @@ import com.example.tastetrail.data.RegisterResponse
 import com.example.tastetrail.data.RequestPasswordResetRequest
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface ApiService {
@@ -17,6 +18,9 @@ interface ApiService {
 
     @POST("register/")
     suspend fun register(@Body registerRequest: RegisterRequest): Response<RegisterResponse>
+
+    @GET("profile/")
+    suspend fun getProfile(): Response<RegisterResponse>
 
     @POST("password-reset/request/")
     suspend fun requestPasswordReset(@Body request: RequestPasswordResetRequest): Response<PasswordResetResponse>
