@@ -1,12 +1,15 @@
 package com.example.tastetrail.network
 
 import com.example.tastetrail.data.ConfirmPasswordResetRequest
+import com.example.tastetrail.data.ConfirmPasswordResetResponse
 import com.example.tastetrail.data.LoginRequest
 import com.example.tastetrail.data.LoginResponse
-import com.example.tastetrail.data.PasswordResetResponse
 import com.example.tastetrail.data.RegisterRequest
 import com.example.tastetrail.data.RegisterResponse
 import com.example.tastetrail.data.RequestPasswordResetRequest
+import com.example.tastetrail.data.RequestPasswordResetResponse
+import com.example.tastetrail.data.ChangePasswordRequest
+import com.example.tastetrail.data.ChangePasswordResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -23,8 +26,11 @@ interface ApiService {
     suspend fun getProfile(): Response<RegisterResponse>
 
     @POST("password-reset/request/")
-    suspend fun requestPasswordReset(@Body request: RequestPasswordResetRequest): Response<PasswordResetResponse>
+    suspend fun requestPasswordReset(@Body request: RequestPasswordResetRequest): Response<RequestPasswordResetResponse>
 
     @POST("password-reset/confirm/")
-    suspend fun confirmPasswordReset(@Body request: ConfirmPasswordResetRequest): Response<PasswordResetResponse>
+    suspend fun confirmPasswordReset(@Body request: ConfirmPasswordResetRequest): Response<ConfirmPasswordResetResponse>
+
+    @POST("change-password/")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<ChangePasswordResponse>
 }

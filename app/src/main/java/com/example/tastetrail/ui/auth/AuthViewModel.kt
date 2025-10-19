@@ -8,6 +8,7 @@ import com.example.tastetrail.data.LoginRequest
 import com.example.tastetrail.data.RegisterRequest
 import com.example.tastetrail.data.RequestPasswordResetRequest
 import com.example.tastetrail.data.SessionManager
+import com.example.tastetrail.data.ChangePasswordRequest
 import com.example.tastetrail.network.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +25,9 @@ class AuthViewModel : ViewModel() {
 
     private val _passwordResetState = MutableStateFlow<PasswordResetState>(PasswordResetState.Idle)
     val passwordResetState: StateFlow<PasswordResetState> = _passwordResetState
+
+    private val _changePasswordState = MutableStateFlow<ChangePasswordState>(ChangePasswordState.Idle)
+    val changePasswordState: StateFlow<ChangePasswordState> = _changePasswordState
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -114,6 +118,34 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
+
+    fun changePassword(currentPassword: String, newPassword: String) {
+        viewModelScope.launch {
+            _changePasswordState.value = ChangePasswordState.Loading
+            try {
+                val response = RetrofitInstance.api.changePassword(
+                    ChangePasswordRequest(currentPassword, newPassword)
+                )
+                if (response.isSuccessful) {
+                    _changePasswordState.value = ChangePasswordState.Success
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = if (errorBody != null) {
+                        try {
+                            json.decodeFromString<ErrorResponse>(errorBody).error
+                        } catch (e: Exception) {
+                            "Failed to change password"
+                        }
+                    } else {
+                        "Failed to change password"
+                    }
+                    _changePasswordState.value = ChangePasswordState.Error(errorMessage)
+                }
+            } catch (e: Exception) {
+                _changePasswordState.value = ChangePasswordState.Error("An error occurred: ${e.message}")
+            }
+        }
+    }
 }
 
 sealed class LoginState {
@@ -136,4 +168,11 @@ sealed class PasswordResetState {
     object RequestSuccess : PasswordResetState()
     object ConfirmSuccess : PasswordResetState()
     data class Error(val message: String) : PasswordResetState()
+}
+
+sealed class ChangePasswordState {
+    object Idle : ChangePasswordState()
+    object Loading : ChangePasswordState()
+    object Success : ChangePasswordState()
+    data class Error(val message: String) : ChangePasswordState()
 }
