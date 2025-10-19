@@ -22,6 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.tastetrail.data.SessionManager
 import com.example.tastetrail.ui.screens.ChangePasswordScreen
 import com.example.tastetrail.ui.screens.ConfirmPasswordResetScreen
 import com.example.tastetrail.ui.screens.HomeScreen
@@ -39,6 +40,7 @@ sealed class Screen(val route: String, val label: String, val icon: @Composable 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        SessionManager.init(this)
         enableEdgeToEdge()
         setContent {
             TasteTrailTheme {
@@ -52,6 +54,7 @@ class MainActivity : ComponentActivity() {
 fun MyApp() {
     val navController = rememberNavController()
     val items = listOf(Screen.Home, Screen.Profile)
+    val startDestination = if (SessionManager.authToken != null) Screen.Home.route else "login"
 
     Scaffold(
         bottomBar = {
@@ -83,7 +86,7 @@ fun MyApp() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "login",
+            startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("login") {
